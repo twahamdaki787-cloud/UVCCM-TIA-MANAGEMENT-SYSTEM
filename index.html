@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>UVCCM TIA DSM - Usajili wa Wanachama</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body class="bg-gray-100 flex items-center justify-center min-h-screen p-4">
     <div class="bg-white p-6 rounded-lg shadow-md w-full max-w-md">
@@ -16,17 +17,17 @@
         <form id="registrationForm" class="space-y-4">
             <div>
                 <label class="block text-sm font-medium text-gray-700">Majina Kamili</label>
-                <input type="text" placeholder="Mfano: John Joseph" required class="w-full mt-1 p-2 border rounded-md focus:ring-green-500 focus:border-green-500">
+                <input type="text" id="fullName" placeholder="Mfano: John Joseph" required class="w-full mt-1 p-2 border rounded-md">
             </div>
 
             <div>
                 <label class="block text-sm font-medium text-gray-700">Kozi Unayosoma</label>
-                <input type="text" placeholder="Mfano: Diploma in Accounting" required class="w-full mt-1 p-2 border rounded-md focus:ring-green-500 focus:border-green-500">
+                <input type="text" id="course" placeholder="Mfano: Diploma in Accounting" required class="w-full mt-1 p-2 border rounded-md">
             </div>
 
             <div>
                 <label class="block text-sm font-medium text-gray-700">Mwaka wa Masomo</label>
-                <select class="w-full mt-1 p-2 border rounded-md focus:ring-green-500 focus:border-green-500">
+                <select id="yearOfStudy" class="w-full mt-1 p-2 border rounded-md">
                     <option>Mwaka wa 1</option>
                     <option>Mwaka wa 2</option>
                     <option>Mwaka wa 3</option>
@@ -35,16 +36,53 @@
 
             <div>
                 <label class="block text-sm font-medium text-gray-700">Namba ya Simu</label>
-                <input type="tel" placeholder="07XXXXXXXX" required class="w-full mt-1 p-2 border rounded-md focus:ring-green-500 focus:border-green-500">
+                <input type="tel" id="phone" placeholder="07XXXXXXXX" required class="w-full mt-1 p-2 border rounded-md">
             </div>
 
             <div>
                 <label class="block text-sm font-medium text-gray-700">Namba ya Kadi ya Chama (Kama ipo)</label>
-                <input type="text" placeholder="SGL-XXXXX" class="w-full mt-1 p-2 border rounded-md focus:ring-green-500 focus:border-green-500">
+                <input type="text" id="cardNumber" placeholder="SGL-XXXXX" class="w-full mt-1 p-2 border rounded-md">
             </div>
 
-            <button type="submit" class="w-full bg-green-600 text-white py-2 rounded-md font-semibold hover:bg-green-700">Hifadhi Taarifa</button>
+            <button type="submit" id="submitBtn" class="w-full bg-green-600 text-white py-2 rounded-md font-semibold hover:bg-green-700">Hifadhi Taarifa</button>
         </form>
+        <p id="statusMsg" class="mt-4 text-center font-medium"></p>
     </div>
+
+    <script>
+        // PASTE ZILE KEYS ULIZO-COPY HAPA CHINI
+        const SUPABASE_URL = 'https://enhrffpovftzrlrsykug.supabase.co/rest/v1/';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVuaHJmZnBvdmZ0enJscnN5a3VnIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc4Njg2MDUzNywiZXhwIjoyMTAyNDM2NTM3fQ.AoD6vAsjQ4zEx-52ZXMS-Tj6fNjhVc1EeEZw5wvxfZI';
+        
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        const form = document.getElementById('registrationForm');
+        const statusMsg = document.getElementById('statusMsg');
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            statusMsg.textContent = 'Inahifadhi taarifa...';
+            statusMsg.className = 'mt-4 text-center text-blue-600 font-medium';
+
+            const full_name = document.getElementById('fullName').value;
+            const course = document.getElementById('course').value;
+            const year_of_study = document.getElementById('yearOfStudy').value;
+            const phone_number = document.getElementById('phone').value;
+            const card_number = document.getElementById('cardNumber').value;
+
+            const { data, error } = await supabase
+                .from('wanachama')
+                .insert([{ full_name, course, year_of_study, phone_number, card_number }]);
+
+            if (error) {
+                statusMsg.textContent = 'Kuna makosa yametokea, jaribu tena!';
+                statusMsg.className = 'mt-4 text-center text-red-600 font-medium';
+            } else {
+                statusMsg.textContent = 'Hongera! Usajili wako umekamilika kikamilifu.';
+                statusMsg.className = 'mt-4 text-center text-green-600 font-medium';
+                form.reset();
+            }
+        });
+    </script>
 </body>
 </html>
